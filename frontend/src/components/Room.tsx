@@ -25,34 +25,33 @@ export const Room = ({
     const remoteVideoRef= useRef<HTMLVideoElement>();
     const localVideoRef = useRef<HTMLVideoElement>();
 
+    const [messages,setMessages] = useState([{your:false,value:''}]);
+    const sendChannel:any = useRef();
     //useState for storing message
     const [msg,setMsg] = useState('');
 
-    useEffect(()=>{
-        console.log("message typing is"+msg);
-    },[msg])
+    useEffect(()=>{ 
+        console.log(msg);
+        console.log(messages);
+    },[msg,messages])
 
     useEffect(()=>{
-        const socket = io(URL);
+        const socket = io(URL); 
         socket.on('send-offer', async({roomId})=>{ //forgetten {} this bracket
-            alert("send offer please");
+            // alert("send offer please");
             setLobby(false);
             const pc = new RTCPeerConnection();
-
-            const dc = pc.createDataChannel("channel")
             setSendingPc(pc);
+            sendChannel.current = pc.createDataChannel("sendChannel"); //made changes over here.
+            sendChannel.current.onmessage = handleRecieveMessage;
 
-
-            //changed over here
-            // let dc: RTCDataChannel;
-            pc.ondatachannel = e => {
-                // dc = e.channel;
-                // socket.on("sendSocket",(data)=>{
-                //     dc.send(data)
-                // })
-            }
-            dc.onmessage = e => console.log("new message from client2 "+ e.data);
-            dc.onopen = e => console.log("Connection opened client 1");
+            // const dc = pc.createDataChannel("channel");
+            // dc.onopen = e => {
+            //     console.log("Connection opened on client 1");
+            //     dc.send("Hello I am client 1")
+            // }
+            // // dc.onmessage = e => console.log("new message from client2 "+ e.data);
+            // dc.onmessage = handleRecieveMessage;
             
             if (localVideoTrack) {
                 pc.addTrack(localVideoTrack);
@@ -86,10 +85,10 @@ export const Room = ({
         });
         
         socket.on('offer',async({roomId, sdp:remoteSdp})=>{
-            alert("Send answer please");
+            // alert("Send answer please");
             setLobby(false);
             const pc = new RTCPeerConnection();
-            
+
             pc.setRemoteDescription(remoteSdp)
             const sdp = await pc.createAnswer();
             // @ts-ignore
@@ -140,17 +139,18 @@ export const Room = ({
                 }
             }
 
-            let dc = pc.createDataChannel("channel2");
-            pc.ondatachannel = e => {
-                dc = e.channel;
-                dc.onmessage = e => console.log("new message from client2 "+ e.data);
-                dc.onopen = e => console.log("Connection opened client 2");
-                socket.on("sendSocket",(data)=>{
-                    dc.send(data)
-                })
-
+            pc.ondatachannel = (e)=>{
+                sendChannel.current = e.channel;
+                // channel.onopen = (e)=>{
+                //     console.log("Connection opened on client 2");
+                //     channel.send("Hii I am client 2");
+                // }
+                // channel.onmessage = (e)=>{
+                //     console.log("new message from client1 "+ e.data);       
+                // }
+                sendChannel.current.onmessage = handleRecieveMessage
             }
-
+            
             socket.emit("answer",{
                 roomId,
                 sdp:sdp
@@ -188,7 +188,7 @@ export const Room = ({
         });
 
         socket.on('answer',({roomId, sdp:remoteSdp})=>{
-            alert("Connection done");
+            // alert("Connection done");
             setLobby(false);
             setSendingPc(pc=>{
                 pc?.setRemoteDescription(remoteSdp)
@@ -220,7 +220,15 @@ export const Room = ({
 
     const onSend = ()=>{
         console.log("clicked");
-        socket?.emit("sendSocket",msg)
+        let ans = msg;
+        setMsg('');
+        return ans;
+    }    
+
+    const onSend1 = ()=>{
+        sendChannel.current.send(msg);
+        setMessages(messages=>[...messages,{your:true, value: msg}])
+        setMsg("");
     }
 
     const changingText = (e:any)=>{
@@ -236,6 +244,9 @@ export const Room = ({
         }
     },[localVideoRef])
 
+    const handleRecieveMessage = (e: { data: any; })=>{
+        setMessages(messages => [...messages,{your:false,value: e.data}]);
+    }   
     
     // return(
     //     <div>
@@ -312,7 +323,7 @@ export const Room = ({
                                 placeholder="Type your message..."
                             />
                         </div>
-                        <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/90 h-10 px-4 py-2 mr-2" onClick={onSend}>
+                        <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/90 h-10 px-4 py-2 mr-2" onClick={onSend1}>
                             Send
                         </button>
                         <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
