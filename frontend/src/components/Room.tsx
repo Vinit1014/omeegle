@@ -248,15 +248,35 @@ export const Room = ({
         setMessages(messages => [...messages,{your:false,value: e.data}]);
     }   
     
-    // return(
-    //     <div>
-    //         Hi {name}
-    //         <video autoPlay width={400} height={400} ref={localVideoRef}/>
-    //         {lobby ? "Waiting for someone to join" : null}
-    //         <video autoPlay width={400} height={400} ref={remoteVideoRef}/>
-    //         <h1 className="underline">Bye</h1>
-    //     </div>
-    // ) 
+    const renderMessages = (message:any,index:number)=>{
+        if (message.your) {
+            return(
+                <div className="flex items-start gap-4">
+                            <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
+                                <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">XYZ</span>
+                            </span>
+                            <div className="text-sm">
+                                {/* <div className="font-semibold">XYZ</div> */}
+                                <div>{message.value}</div>
+                            </div>
+                </div>
+            )
+        }
+
+        return(
+            <div className="flex items-start gap-4 justify-end">
+                            <div className="text-sm text-right">
+                                <div className="font-semibold">{name}</div>
+                                {/* <div>I'm good, thanks! How about you?</div>  */}
+                                <div>{message.value}</div> 
+                            </div>
+                            <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
+                                <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">You</span>
+                            </span>
+            </div>
+        )
+    }
+
     return ( 
         <div className="flex flex-col h-screen bg-gray-100"> 
             {/* Navbar */}
@@ -295,7 +315,7 @@ export const Room = ({
                 <div className="w-px bg-black/20 mx-4" />
                 <div className="rounded-lg overflow-hidden shadow-lg bg-white max-w-3xl p-4 space-y-4 w-1/2 flex flex-col h-full">
                     <div className="flex-1 overflow-auto space-y-4 w-full">
-                        <div className="flex items-start gap-4">
+                        {/* <div className="flex items-start gap-4">
                             <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
                                 <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">XYZ</span>
                             </span>
@@ -303,16 +323,18 @@ export const Room = ({
                                 <div className="font-semibold">XYZ</div>
                                 <div>Hello, how are you?</div>
                             </div>
+                            
                         </div>
                         <div className="flex items-start gap-4 justify-end">
                             <div className="text-sm text-right">
                                 <div className="font-semibold">{name}</div>
-                                <div>I'm good, thanks! How about you?</div>
+                                <div>I'm good, thanks! How about you?</div> 
                             </div>
                             <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
                                 <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">You</span>
                             </span>
-                        </div>
+                        </div> */}
+                        {messages.map(renderMessages)}
                     </div>
                     <div className="flex items-start justify-between px-4 py-2 bg-white shadow">
                         <div className="flex-1 mr-4">
