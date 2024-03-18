@@ -26,7 +26,7 @@ export const Landing = ()=>{
         }
         
         videoRef.current.srcObject = new MediaStream([videoTrack]);
-        videoRef.current.play();
+        videoRef.current.play(); 
     }
 
     useEffect(()=>{
@@ -38,13 +38,14 @@ export const Landing = ()=>{
     if (!joined) {
         return(
             <div>
-                <video autoPlay ref={videoRef}></video>
-            <h1>Hello</h1>
-            <input type="text" onChange={(e) => {
+                <h1 className="shadow-md text-2xl mt-0 font-bold text-gray-800">Omeeggle</h1>
+                <h2 className="my-4">"Let's talk and have fun with interesting people."</h2>
+                <video  autoPlay ref={videoRef}></video>
+            <input placeholder="Enter any name" className="shadow-md border-slate-500 p-3 my-2" type="text" onChange={(e) => {
                 setName(e.target.value);
             }}> 
             </input>
-            <button onClick={()=>{
+            <button className="my-2 mx-2 shadow-md" onClick={()=>{
                 setJoined(true);
             }}>Join</button>
             {/* <Link to={`/room/?name=${name}`}>Join</Link> */}

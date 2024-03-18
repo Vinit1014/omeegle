@@ -225,9 +225,15 @@ export const Room = ({
         return ans;
     }    
 
-    const onSend1 = ()=>{
+    const onSend1 = async()=>{
         sendChannel.current.send(msg);
         setMessages(messages=>[...messages,{your:true, value: msg}])
+        let final = {
+            'sender':name,
+            'time':Date.now(),
+            'msg':msg
+        }
+        socket?.emit('chatMessage',final);
         setMsg("");
     }
 
@@ -251,20 +257,7 @@ export const Room = ({
     const renderMessages = (message:any,index:number)=>{
         if (message.your) {
             return(
-                <div className="flex items-start gap-4">
-                            <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
-                                <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">XYZ</span>
-                            </span>
-                            <div className="text-sm">
-                                {/* <div className="font-semibold">XYZ</div> */}
-                                <div>{message.value}</div>
-                            </div>
-                </div>
-            )
-        }
-
-        return(
-            <div className="flex items-start gap-4 justify-end">
+                <div className="flex items-start gap-4 justify-end">
                             <div className="text-sm text-right">
                                 <div className="font-semibold">{name}</div>
                                 {/* <div>I'm good, thanks! How about you?</div>  */}
@@ -273,7 +266,20 @@ export const Room = ({
                             <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
                                 <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">You</span>
                             </span>
-            </div>
+                </div>
+            )
+        }
+
+        return(
+            <div className="flex items-start gap-4">
+                            <span className="relative flex shrink-0 overflow-hidden rounded-full w-12 h-10 border">
+                                <span className="flex h-full w-full items-center justify-center rounded-full bg-muted p-0">Other</span>
+                            </span>
+                            <div className="text-sm">
+                                {/* <div className="font-semibold">XYZ</div> */}
+                                <div>{message.value}</div>
+                            </div>
+                </div>    
         )
     }
 
@@ -281,7 +287,7 @@ export const Room = ({
         <div className="flex flex-col h-screen bg-gray-100"> 
             {/* Navbar */}
             <header className="flex items-center justify-between px-4 py-2 bg-white shadow border-b border-black/20">
-                <h1 className="text-2xl font-bold text-gray-800">Omegle</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Omeeggle</h1>
                 <div className="text-sm text-gray-500">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -300,7 +306,7 @@ export const Room = ({
                         <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <span>Online: 1234</span>
+                    <span>Online: 2</span>
                 </div>
             </header>
             {lobby ? "Waiting to connect you to someone" : null}
@@ -315,25 +321,6 @@ export const Room = ({
                 <div className="w-px bg-black/20 mx-4" />
                 <div className="rounded-lg overflow-hidden shadow-lg bg-white max-w-3xl p-4 space-y-4 w-1/2 flex flex-col h-full">
                     <div className="flex-1 overflow-auto space-y-4 w-full">
-                        {/* <div className="flex items-start gap-4">
-                            <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
-                                <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">XYZ</span>
-                            </span>
-                            <div className="text-sm">
-                                <div className="font-semibold">XYZ</div>
-                                <div>Hello, how are you?</div>
-                            </div>
-                            
-                        </div>
-                        <div className="flex items-start gap-4 justify-end">
-                            <div className="text-sm text-right">
-                                <div className="font-semibold">{name}</div>
-                                <div>I'm good, thanks! How about you?</div> 
-                            </div>
-                            <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border">
-                                <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">You</span>
-                            </span>
-                        </div> */}
                         {messages.map(renderMessages)}
                     </div>
                     <div className="flex items-start justify-between px-4 py-2 bg-white shadow">
